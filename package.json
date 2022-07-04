@@ -1,0 +1,39 @@
+{
+  "name": "zip-stream-webpack-plugin",
+  "version": "1.0.0",
+  "description": "Webpack plugin to zip assets with zip-stream",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ravinila/zip-stream-webpack-plugin.git"
+  },
+  "keywords": [
+    "webpack"
+  ],
+  "author": "cs.ravins@gmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ravinila/zip-stream-webpack-plugin/issues"
+  },
+  "homepage": "https://github.com/ravinila/zip-stream-webpack-plugin#readme",
+  "dependencies": {
+    "archiver": "^5.3.1"
+  },
+  "devDependencies": {
+    "webpack": "^5.73.0"
+  },
+  "peerDependencies": {
+    "webpack": "^4.0.0 || ^5.73.0"
+  },
+  "peerDependenciesMeta": {
+    "@swc/core": {
+      "optional": true
+    },
+    "esbuild": {
+      "optional": true
+    }
+  }
+}
