@@ -1,1 +1,54 @@
 # zip-stream-webpack-plugin
+
+A webpack plugin to zip the output files which is highly customizable.
+
+## Install
+
+```
+npm install --save-dev zip-stream-webpack-plugin
+```
+
+## Usage
+
+webpack.config.js
+
+```js
+var ZipStreamPlugin = require('zip-stream-webpack-plugin');
+
+module.exports = {
+    output: {
+        path: path.join(__dirname, 'dist'),
+        filename: 'main.js'
+    },
+    plugins: [
+        new ZipStreamPlugin({
+            // optional: defaults to webpack's output path & filename
+            path: 'targets',
+            filename: 'final_build.zip'
+
+            // includes/excludes files, here excludes has high precedence over includes
+            exclude: [/__MAC*/, /DS_Store/, /.js.map/,],
+            include: null,
+
+            extension: "zip", // defaults to .zip if no extension specified in output filename
+
+            // optional : defaults to noop
+            // it uses Archiver to zip the output directory
+            customizeArchiver: (archive) => {
+                // here archiver can be costomized 
+                // see https://www.npmjs.com/package/archiver
+            },
+
+            // the default behaviour of this plugin is to zip output directory
+            // with this flag it can be disabled and customize completely with 
+            // customizeArchiver
+            noDefaultDehaviour: false,
+
+        })
+    ]
+}
+```
+
+## Keywords
+
+webpack, archiver, zip-stream
