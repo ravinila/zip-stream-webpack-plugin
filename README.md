@@ -26,20 +26,20 @@ module.exports = {
             path: 'targets',
             filename: 'final_build.zip'
 
-            // includes/excludes files, here excludes has high precedence over includes
+            // optional: include/exclude files, here exclude has high precedence over include
             exclude: [/__MAC*/, /DS_Store/, /.js.map/,],
             include: null,
 
-            extension: "zip", // defaults to .zip if no extension specified in output filename
+            extension: "zip", // defaults to zip if no extension specified in output filename
 
-            // optional : defaults to noop
+            // optional: defaults to noop
             // it uses Archiver to zip the output directory
             customizeArchiver: (archive) => {
                 // here archiver can be costomized 
                 // see https://www.npmjs.com/package/archiver
             },
 
-            // the default behaviour of this plugin is to zip output directory
+            // optional: the default behaviour of this plugin is to zip output directory
             // with this flag it can be disabled and customize completely with 
             // customizeArchiver
             noDefaultDehaviour: false,
