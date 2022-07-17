@@ -1,6 +1,6 @@
 {
   "name": "zip-stream-webpack-plugin",
-  "version": "1.0.2",
+  "version": "1.0.0",
   "description": "Webpack plugin to zip assets with zip-stream",
   "main": "index.js",
   "scripts": {
