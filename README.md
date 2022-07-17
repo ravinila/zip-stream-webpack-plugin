@@ -48,7 +48,3 @@ module.exports = {
     ]
 }
 ```
-
-## Keywords
-
-webpack, archiver, zip-stream
