@@ -1,8 +1,11 @@
+const os = require("os");
+const path = require("path");
 const fs = require("fs");
-const { resolve } = require("path");
+const fsE = require("fs-extra");
 const archiver = require("archiver");
 const ModuleFilenameHelpers = require("webpack/lib/ModuleFilenameHelpers");
-const path = require("path");
+
+const isFunc = (fn) => typeof fn === "function";
 
 class ZipStreamPlugin {
   static defaultOptions = {
@@ -19,17 +22,22 @@ class ZipStreamPlugin {
     this.options = { ...ZipStreamPlugin.defaultOptions, ...options };
   }
 
-  getFiles(dir) {
+  getFiles(dir, filterMethod) {
     const files = [];
+
+    const filterMd = isFunc(filterMethod) ? filterMethod : () => true;
     // get all files recursively
     const fn = (dirPath) => {
       const dirFiles = fs.readdirSync(dirPath);
       for (const file of dirFiles) {
-        const absolutePath = resolve(dirPath, file);
-        if (fs.statSync(absolutePath).isDirectory()) {
-          fn(absolutePath);
-        } else {
-          files.push(absolutePath);
+        const absolutePath = path.resolve(dirPath, file);
+
+        if (filterMd(absolutePath)) {
+          if (fs.statSync(absolutePath).isDirectory()) {
+            fn(absolutePath);
+          } else {
+            files.push(absolutePath);
+          }
         }
       }
     };
@@ -44,12 +52,8 @@ class ZipStreamPlugin {
     const { webpack } = compiler;
     const { Compilation } = webpack;
 
-    let distPath;
-
     compiler.hooks.thisCompilation.tap(pluginName, (compilation) => {
       compilation = compilation;
-      distPath = compilation.options.output.path;
-
       compilation.hooks.processAssets.tap(
         {
           name: pluginName,
@@ -59,19 +63,27 @@ class ZipStreamPlugin {
       );
     });
 
-    compiler.hooks.done.tap(pluginName, (stats) => {
-      const outputPath = this.options.path || distPath;
+    compiler.hooks.done.tap(pluginName, async (stats) => {
+      const { path: distPath } = stats.compilation.options.output;
 
-      let outputFile = resolve(outputPath, this.options.filename);
+      const outputPath = path.resolve(distPath, this.options.path);
+
+      let outputFile = path.resolve(outputPath, this.options.filename);
 
       if (!path.extname(outputFile).length && this.options.extension !== null) {
         outputFile += this.options.extension;
       }
 
+      const tempPath = os.tmpdir() + "/zip-stream/";
+
       const filterFn = ModuleFilenameHelpers.matchObject.bind(null, {
         include: this.options.include,
         exclude: this.options.exclude,
       });
+
+      const getRelativePath = (absolutePath, dir) => {
+        return [absolutePath].toString().replace(dir.toString() + "/", "");
+      };
 
       let archive = archiver("zip", {
         zlib: { level: 9 },
@@ -83,34 +95,34 @@ class ZipStreamPlugin {
 
       if (!fs.existsSync(outputPath)) fs.mkdirSync(outputPath);
 
-      if (typeof this.options.customizeArchiver === "function") {
+      if (isFunc(this.options.customizeArchiver)) {
         this.options.customizeArchiver(archive);
       }
+
       if (!this.options.noDefaultDehaviour) {
         const output = fs.createWriteStream(outputFile);
         archive.pipe(output);
 
-        const files = this.getFiles(distPath);
+        if (!fs.existsSync(tempPath)) fs.mkdirSync(tempPath);
 
-        files.forEach((file) => {
-          const relativeFilePath = [file].toString().replace(distPath, "");
-          console.log({ relativeFilePath }, filterFn(relativeFilePath));
-          if (!filterFn(relativeFilePath)) {
-            try {
-              fs.unlinkSync(file);
-            } catch (error) {
-              console.log(error);
-            }
-          }
+        const files = this.getFiles(distPath, (absolutePath) => {
+          const relativeFilePath = getRelativePath(absolutePath, distPath);
+          return filterFn(relativeFilePath);
         });
 
-        archive.directory(distPath, false);
+        files.forEach((absolutePath) => {
+          const relativeFilePath = getRelativePath(absolutePath, distPath);
+          const tempFilePath = tempPath + relativeFilePath;
+
+          fsE.copySync(absolutePath, tempFilePath);
+        });
+
+        archive.directory(tempPath, false);
       }
 
-      archive.finalize().then(() => {
-        const { path, filename } = stats.compilation.options.output;
-        console.log({ stats });
-      });
+      await archive.finalize();
+
+      fsE.emptyDirSync(tempPath);
     });
   }
 }

@@ -1,7 +1,7 @@
 {
   "name": "zip-stream-webpack-plugin",
-  "version": "1.0.4",
-  "description": "Webpack plugin to zip assets with zip-stream",
+  "version": "1.0.5",
+  "description": "Webpack plugin to zip assets with archiver",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -22,13 +22,14 @@
   },
   "homepage": "https://github.com/ravinila/zip-stream-webpack-plugin#readme",
   "dependencies": {
-    "archiver": "^5.3.1"
+    "archiver": "^5.3.1",
+    "fs-extra": "^10.1.0"
   },
   "devDependencies": {
     "webpack": "^5.73.0"
   },
   "peerDependencies": {
-    "webpack": "^4.0.0 || ^5.73.0"
+    "webpack": "^5.0.0"
   },
   "peerDependenciesMeta": {
     "@swc/core": {
