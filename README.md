@@ -39,10 +39,10 @@ module.exports = {
                 // see https://www.npmjs.com/package/archiver
             },
 
-            // optional: the default behaviour of this plugin is to zip output directory
-            // with this flag it can be disabled and customize completely with 
+            // optional: the default behaviour of this plugin is to zip entire output directory.
+            // With this flag it can be disabled and customize completely with 
             // customizeArchiver
-            noDefaultDehaviour: false,
+            allowDefaults: true,
 
         })
     ]

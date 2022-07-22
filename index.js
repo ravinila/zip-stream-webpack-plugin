@@ -10,7 +10,7 @@ const isFunc = (fn) => typeof fn === "function";
 class ZipStreamPlugin {
   static defaultOptions = {
     customizeArchiver: null,
-    noDefaultDehaviour: false,
+    allowDefaults: true,
     path: "",
     filename: "",
     extension: "zip",
@@ -93,17 +93,17 @@ class ZipStreamPlugin {
         throw err;
       });
 
-      if (!fs.existsSync(outputPath)) fs.mkdirSync(outputPath);
+      fsE.ensureDirSync(outputPath);
 
       if (isFunc(this.options.customizeArchiver)) {
         this.options.customizeArchiver(archive);
       }
 
-      if (!this.options.noDefaultDehaviour) {
+      if (this.options.allowDefaults) {
         const output = fs.createWriteStream(outputFile);
         archive.pipe(output);
 
-        if (!fs.existsSync(tempPath)) fs.mkdirSync(tempPath);
+        fsE.ensureDirSync(tempPath);
 
         const files = this.getFiles(distPath, (absolutePath) => {
           const relativeFilePath = getRelativePath(absolutePath, distPath);
