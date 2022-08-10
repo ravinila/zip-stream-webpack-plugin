@@ -16,6 +16,7 @@ class ZipStreamPlugin {
     extension: "zip",
     include: null,
     exclude: null,
+    extract: false,
   };
 
   constructor(options = {}) {
@@ -118,6 +119,14 @@ class ZipStreamPlugin {
         });
 
         archive.directory(tempPath, false);
+
+        if (this.options.extract) {
+          const outputBuildPath = path.resolve(
+            outputPath,
+            path.basename(outputFile, "." + this.options.extension)
+          );
+          fsE.copySync(tempPath, outputBuildPath);
+        }
       }
 
       await archive.finalize();
